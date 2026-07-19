@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Florida Life Insurance Workbook Practice Quiz</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --success: #15803d;
+      --danger: #dc2626;
+      --border: #dbe3ef;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+    .hero { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; border-radius: 18px; padding: 24px; box-shadow: 0 10px 30px rgba(37,99,235,.18); }
+    .hero h1 { margin: 0 0 8px; font-size: 28px; }
+    .hero p { margin: 0; opacity: .96; }
+    .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 22px; }
+    .stat { background: white; border: 1px solid var(--border); border-radius: 999px; padding: 10px 14px; font-weight: 700; box-shadow: 0 2px 10px rgba(15,23,42,.04); }
+    .chapter { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(15,23,42,.04); }
+    .chapter h2 { margin: 0 0 10px; font-size: 18px; color: var(--accent); }
+    .card { border: 1px solid var(--border); border-radius: 14px; padding: 14px 14px 12px; margin-bottom: 12px; background: #fcfdff; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .badge { background: #eff6ff; color: var(--accent); font-weight: 700; font-size: 12px; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
+    .qtext { font-weight: 700; margin: 0 0 10px; }
+    .options { display: grid; gap: 8px; }
+    button.option { width: 100%; text-align: left; border: 1px solid var(--border); background: white; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: 15px; color: var(--text); transition: transform .15s ease, border-color .15s ease; }
+    button.option:hover { transform: translateY(-1px); border-color: #93c5fd; }
+    button.option:disabled { cursor: default; opacity: 1; }
+    button.option.correct { border-color: var(--success); background: #ecfdf3; color: var(--success); font-weight: 700; }
+    button.option.wrong { border-color: var(--danger); background: #fef2f2; color: var(--danger); font-weight: 700; }
+    .feedback { margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 700; display: none; }
+    .feedback.show { display: block; }
+    .feedback.correct { background: #ecfdf3; color: var(--success); border: 1px solid #a7f3d0; }
+    .feedback.wrong { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .btn { padding: 12px 16px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 15px; }
+    .btn.primary { background: var(--accent); color: white; }
+    .btn.secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+    .result { display: none; margin-top: 16px; padding: 16px; border-radius: 14px; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .result.show { display: block; }
+    .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
+    @media (max-width: 700px) { .hero h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Florida Life Insurance Workbook Practice Quiz</h1>
+      <p>100 multiple-choice questions, grouped by chapter section, with instant feedback and auto-scoring.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat" id="scoreStat">Score: 0 / 100</div>
+      <div class="stat" id="progressStat">Answered: 0 / 100</div>
+    </div>
+
+    <div id="quiz"></div>
+
+    <div class="actions">
+      <button class="btn secondary" id="resetBtn">Reset Quiz</button>
+      <button class="btn primary" id="submitBtn">Submit Quiz</button>
+    </div>
+
+    <div class="result" id="resultBox"></div>
+
+    <div class="footer">Built as a lightweight web quiz so it can be hosted on Hostinger, GitHub Pages, or any simple static host.</div>
+  </div>
+
+  <script>
+    const questions = [
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'Which of the following best describes insurance?', options: ['A transfer of risk from one party to another', 'A guarantee of profit to the insured', 'A form of investment only', 'A type of banking product'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'The purpose of insurance is primarily to:', options: ['Protect against financial loss', 'Increase wealth tax-free', 'Eliminate all future risk', 'Guarantee a loan approval'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'A peril is best defined as:', options: ['A cause of loss', 'A type of policy owner', 'A rider attached to a contract', 'A premium discount'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'Which term refers to the uncertainty of loss?', options: ['Risk', 'Hazard', 'Indemnity', 'Peril'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'A moral hazard is most closely associated with:', options: ['Dishonest or careless behavior', 'Natural disasters', 'Market volatility only', 'A high premium'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'The principle of indemnity means:', options: ['The insured should be restored to approximately the same financial position as before the loss', 'The insurer must pay more than the loss', 'The insured shares all profits', 'The insurer can cancel a policy anytime'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'Which of the following is a required element of a valid insurance contract?', options: ['Offer and acceptance', 'A witness', 'A notary seal', 'A certificate of title'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'An applicant who submits an application with a premium is making:', options: ['An offer', 'An endorsement', 'A waiver', 'An assignment'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'Which party is the insurer?', options: ['The company issuing the policy', 'The policyowner', 'The beneficiary', 'The agent'], answerIndex: 0 },
+      { chapter: 'Chapter 1: Insurance Basics and Principles', prompt: 'A contract of adhesion means the policy is:', options: ['Prepared by one party and accepted by the other', 'Negotiated by both parties equally', 'Issued only to businesses', 'Always renewable'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Whole life insurance is designed to provide:', options: ['Lifetime coverage and cash value accumulation', 'Temporary coverage only', 'No cash value', 'Only annuity income'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Term life insurance is primarily used for:', options: ['Temporary coverage for a limited period', 'Retirement income', 'Investment growth', 'Home equity protection'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Universal life insurance combines life coverage with:', options: ['Flexible premiums and cash value', 'Fixed premiums only', 'No cash value', 'Only disability benefits'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Variable life insurance allows policy cash value to be invested in:', options: ['Separate accounts', 'Treasury bills only', 'Fixed annuities only', 'Savings accounts only'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'A decreasing term policy is often used to cover:', options: ['Mortgage balances', 'Retirement income', 'Estate taxes only', 'Long-term care costs'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Which policy generally offers the lowest initial premium?', options: ['Term life insurance', 'Whole life insurance', 'Universal life insurance', 'Variable life insurance'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'A participating whole life policy may receive:', options: ['Dividends', 'Tax credits', 'Interest-free loans only', 'Extra riders automatically'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Which policy is most likely to have the highest cash value growth potential?', options: ['Variable life insurance', 'Annual renewable term', 'Level term', 'Decreasing term'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'A family income policy combines:', options: ['Whole life and decreasing term insurance', 'Term and annuity only', 'Health and disability coverage', 'Accident and sickness only'], answerIndex: 0 },
+      { chapter: 'Chapter 2: Types of Life Insurance Policies', prompt: 'Which policy typically offers a fixed premium and a guaranteed death benefit?', options: ['Whole life', 'Annual renewable term', 'Increasing term', 'Universal life with variable interest'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'The free-look period generally allows the policyowner to:', options: ['Review the policy and return it for a refund', 'Change the beneficiary without notice', 'Increase the premium', 'Borrow the cash value immediately'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'A beneficiary designation is used to identify:', options: ['Who receives policy proceeds', 'Who pays the premium', 'Who underwrites the risk', 'Who issues the policy'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'A rider added to a life insurance policy generally:', options: ['Provides additional benefits or features', 'Eliminates the need for underwriting', 'Reduces the death benefit', 'Removes all exclusions'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'An accidental death rider provides benefits if death occurs:', options: ['Because of an accident', 'During the grace period', 'From natural causes', 'After policy lapse'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'The incontestable clause prevents the insurer from denying a claim after the policy has been in force for a specified period, usually:', options: ['Two years', 'One month', 'Five years', 'Ten years'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'The grace period is intended to:', options: ['Provide time to pay overdue premiums', 'Cancel the contract immediately', 'Reduce the face amount', 'Transfer ownership'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'A policy loan is usually available against the policy’s:', options: ['Cash value', 'Dividend', 'Face amount only', 'Premium deposit'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'Which provision allows the policyowner to change the beneficiary?', options: ['Revocable beneficiary provision', 'Incontestable clause', 'Grace period', 'Misstatement of age clause'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'The suicide exclusion typically applies during the policy’s:', options: ['Early years', 'Entire lifetime', 'Grace period only', 'Last policy year'], answerIndex: 0 },
+      { chapter: 'Chapter 3: Policy Provisions, Riders, and Options', prompt: 'A waiver of premium rider generally pays premiums if the insured becomes:', options: ['Disabled', 'Retired', 'Unemployed', 'Married'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'Underwriting is the process of:', options: ['Evaluating risk and determining insurability', 'Selling the policy', 'Collecting premiums', 'Paying claims'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'A higher risk insured typically results in:', options: ['A higher premium', 'A lower premium', 'No premium change', 'A guaranteed dividend'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'The mortality charge in a life insurance policy reflects:', options: ['The cost of providing death protection', 'The policyowner’s age only', 'The beneficiary’s income', 'The agent’s commission'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'Which factor commonly affects life insurance premiums?', options: ['Age', 'Hair color', 'Favorite hobby', 'Marital status alone'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'A substandard risk may require:', options: ['An extra premium or rating', 'No underwriting', 'A lower face amount', 'A shorter grace period'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'The policy’s cash value is usually built from:', options: ['Premiums paid less expenses and charges', 'Only agent commissions', 'Only dividends', 'Only interest on the face amount'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'A level premium means:', options: ['The premium stays the same over the policy period', 'The premium increases every year', 'The premium is waived permanently', 'The premium is paid only once'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'An insurer may require a medical exam to:', options: ['Assess insurability and mortality risk', 'Set the beneficiary', 'Change the policyowner', 'Reduce the face amount'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'A reinstatement provision allows a lapsed policy to be restored under certain conditions, usually within:', options: ['A specified period after lapse', 'One day', 'Thirty seconds', 'Never'], answerIndex: 0 },
+      { chapter: 'Chapter 4: Underwriting, Premiums, and Costs', prompt: 'The loading charge in premium calculations generally refers to:', options: ['Expenses and insurer costs', 'Beneficiary dividends', 'Cash value growth', 'The face amount'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'An annuity is designed primarily to provide:', options: ['Income payments', 'Temporary death protection', 'Corporate stock grants', 'Credit card protection'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'A fixed annuity generally offers:', options: ['A guaranteed rate of return', 'A variable investment return', 'No guaranteed payout', 'Only stock market exposure'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'A variable annuity’s value is affected by:', options: ['The performance of underlying investment options', 'The insured’s age only', 'The marital status only', 'A fixed annual premium'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'Immediate annuities typically begin making payments:', options: ['Soon after purchase', 'After a long deferral period', 'After the insured dies', 'Only at age 100'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'Deferred annuities are generally used to:', options: ['Accumulate funds for future income', 'Eliminate all estate taxes', 'Replace health insurance', 'Pay mortgage interest'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'Which annuity feature can help protect against outliving income?', options: ['Lifetime payout option', 'Temporary term rider', 'Lapse waiver', 'Free-look period'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'A qualified retirement plan is generally designed to:', options: ['Provide tax advantages to the participant', 'Avoid all taxation', 'Sell life insurance', 'Offer no contribution limits'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'The accumulation phase of an annuity is the period when:', options: ['Funds are growing before payments begin', 'The insurer pays death benefits', 'The policy terminates', 'The beneficiary is chosen'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'A life annuity with period-certain provides payments for:', options: ['The annuitant’s lifetime and a minimum guaranteed period', 'Only the beneficiary’s lifetime', 'Only the insurer’s lifetime', 'A fixed term only'], answerIndex: 0 },
+      { chapter: 'Chapter 5: Annuities and Retirement Planning', prompt: 'A common reason to buy an annuity is to:', options: ['Create a stream of retirement income', 'Protect against auto accidents', 'Increase credit card limits', 'Buy real estate directly'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'Florida insurance regulation is primarily intended to:', options: ['Protect policyholders and maintain a fair market', 'Eliminate all competition', 'Guarantee profits for insurers', 'Reduce all insurance premiums'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'A licensee who violates insurance law may be subject to:', options: ['Penalties or license suspension', 'Immediate tax refunds', 'Extended grace periods', 'No consequence'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'Which of the following is a common insurance law requirement?', options: ['Maintaining a valid license and following fiduciary duties', 'Selling policies without disclosures', 'Using misleading advertising only', 'Disregarding replacement rules'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'Replacement regulations are intended to ensure:', options: ['Consumers are informed when replacing existing coverage', 'Agents avoid all disclosures', 'Insurers can ignore suitability', 'Policies always increase in cost'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'A producer should always act in the client’s best interest by:', options: ['Providing suitable recommendations', 'Ignoring underwriting results', 'Selling the most expensive policy', 'Focusing only on commissions'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'An insurance advertisement must generally be:', options: ['Accurate and not misleading', 'Hidden from consumers', 'Exaggerated and vague', 'Unreviewed by the insurer'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'Which of these is a key consumer protection principle?', options: ['Disclosure of important policy information', 'Guaranteed high returns', 'No right to cancel', 'Automatic approval for all applicants'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'A policy replacement transaction may require:', options: ['A comparison of old and new coverage', 'No documentation', 'A new underwriting exam only', 'No notice to the insured'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'An insurer must generally honor the terms of the policy once:', options: ['The contract is issued and the premium is paid', 'The applicant asks questions', 'The agent has a conversation', 'The prospect refuses to sign'], answerIndex: 0 },
+      { chapter: 'Chapter 6: Florida Insurance Laws and Regulations', prompt: 'A producer’s fiduciary responsibility includes:', options: ['Handling premiums and funds responsibly', 'Giving guaranteed returns', 'Avoiding all disclosures', 'Eliminating policy options'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'The primary goal of ethical sales practices is to:', options: ['Serve the client’s needs honestly and appropriately', 'Maximize commissions at all costs', 'Avoid all disclosures', 'Pressure clients into immediate decisions'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'A suitable recommendation should be based on:', options: ['The client’s needs, goals, and financial situation', 'The agent’s personal preference', 'The highest commission product', 'The easiest policy to sell'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'Which practice is most consistent with ethical conduct?', options: ['Explaining policy features and limitations clearly', 'Withholding important product information', 'Falsely promising guaranteed returns', 'Using scare tactics to rush a sale'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'A producer should avoid recommending a policy that is:', options: ['Unsuitable for the client', 'Affordable and simple', 'Matching the client’s objectives', 'In the client’s best interest'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'The client’s financial objectives usually include:', options: ['Protection, savings, and retirement planning', 'Only speculation', 'Only tax avoidance', 'Only homeownership'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'If a client is confused about a policy, the producer should:', options: ['Clarify the terms and alternatives', 'Force the client to sign immediately', 'Cancel the application', 'Ignore the question'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'A good needs analysis is meant to identify:', options: ['The client’s insurance and financial needs', 'Only premium affordability', 'Only tax status', 'Only the beneficiary’s age'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'Which action demonstrates professionalism?', options: ['Maintaining records accurately and respectfully', 'Selling without explaining exclusions', 'Using pressure to close quickly', 'Ignoring consumer complaints'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'An ethical producer should disclose:', options: ['Material facts that affect the client’s decision', 'Only favorable information', 'Only the commission amount', 'Only policy number'], answerIndex: 0 },
+      { chapter: 'Chapter 7: Life Insurance Marketing and Ethics', prompt: 'A recommendation is more credible when it is based on:', options: ['A thorough understanding of the client’s situation', 'The producer’s personal preference', 'The insurer’s advertising', 'The highest premium product'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'Life insurance death benefits are generally:', options: ['Income-tax-free to the beneficiary', 'Taxed as ordinary income', 'Always subject to gift tax', 'Always taxable to the insured'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'The cash value of a life insurance policy generally grows:', options: ['Tax-deferred', 'Tax-free immediately', 'Taxed as wages', 'Taxed as interest only'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'A life insurance policy can be used in estate planning to:', options: ['Provide liquidity to pay estate costs', 'Eliminate all taxes', 'Avoid probate completely in every case', 'Replace all investments'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'An irrevocable life insurance trust can help with:', options: ['Estate planning and asset transfer goals', 'Reducing health claims', 'Creating a mortgage', 'Avoiding premium payments'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'Policy loans may create:', options: ['Tax consequences if not properly structured', 'No financial impact', 'Guaranteed dividends', 'Reduced death benefits always'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'A transfer-for-value rule may affect:', options: ['Tax treatment of life insurance proceeds', 'Premium calculations', 'The grace period', 'The free-look period'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'When a policyowner dies, the death benefit is usually paid to:', options: ['The named beneficiary', 'The insurer’s board', 'The state government', 'The producer'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'A life insurance policy can be part of a business continuation plan by:', options: ['Providing funds to protect the business after a key person dies', 'Eliminating all business expenses', 'Avoiding all debts', 'Reducing payroll'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'Estate liquidity refers to:', options: ['The availability of cash to cover estate obligations', 'The policy’s interest rate', 'The number of beneficiaries', 'The grace period length'], answerIndex: 0 },
+      { chapter: 'Chapter 8: Taxation and Estate Planning', prompt: 'A major benefit of life insurance in estate planning is:', options: ['Providing funds without requiring immediate asset liquidation', 'Guaranteeing a tax-free investment return', 'Reducing the need for a will', 'Eliminating all probate'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'Group life insurance is commonly provided through:', options: ['An employer or association', 'An individual savings account', 'A bank CD', 'A mutual fund'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'A key person insurance policy is intended to protect a business against:', options: ['The financial loss caused by the death of a vital employee', 'The business’s filing taxes', 'The death of a customer', 'The loss of office space'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'Business continuation planning often uses life insurance to:', options: ['Provide funds for ownership transition', 'Eliminate all debts', 'Increase employee salaries', 'Replace all capital equipment'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'A buy-sell agreement is usually designed to:', options: ['Set the terms for transferring business ownership', 'Avoid all tax reporting', 'Increase policy dividends', 'Replace workers’ compensation'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'Group life insurance usually has:', options: ['Simpler underwriting and lower cost per unit of coverage', 'No beneficiaries', 'Higher premiums than individual policies', 'No eligibility requirements'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'A common use of life insurance in business is to:', options: ['Fund a business owner’s buyout or succession plan', 'Eliminate all payroll taxes', 'Replace a pension plan', 'Guarantee profits'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'In a buy-sell arrangement, the policy is often owned by:', options: ['The business or the owners', 'The beneficiary only', 'The state insurance department', 'A bank'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'A common reason for key person insurance is to:', options: ['Protect the business from revenue disruption', 'Increase employee turnover', 'Avoid all claims', 'Replace the need for underwriting'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'Group life coverage is often offered on an:', options: ['Employer-sponsored basis', 'Individual-only basis', 'Investment-only basis', 'No-benefit basis'], answerIndex: 0 },
+      { chapter: 'Chapter 9: Group Life, Business Uses, and Key Person', prompt: 'One reason businesses buy life insurance is to:', options: ['Fund a future purchase or transfer of ownership', 'Avoid all state regulation', 'Guarantee employee retention', 'Reduce needed capital'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'Policy replacement is most likely to occur when a client:', options: ['Replaces an existing policy with a new one', 'Pays premiums on time', 'Adds a beneficiary', 'Reviews the policy annually'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'Suitability means the policy should:', options: ['Fit the consumer’s needs and circumstances', 'Be the highest commission product', 'Be identical to all others', 'Have no exclusions'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A comparison of old and new coverage is important because:', options: ['It helps identify possible gaps or losses in benefits', 'It guarantees no underwriting', 'It removes all policy charges', 'It eliminates the need for disclosures'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'The goal of consumer protection rules is to:', options: ['Protect buyers from unfair or misleading practices', 'Increase insurer profits', 'Eliminate agent commissions', 'Avoid all regulation'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A producer should disclose material facts so the client can:', options: ['Make an informed decision', 'Sign quickly without review', 'Avoid reading the policy', 'Accept all policy changes'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'If a policy is replaced, the producer should carefully explain:', options: ['Any changes in benefits, cost, and guarantees', 'Only the new policy number', 'Only the premium due date', 'Only the beneficiary name'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A client’s long-term objectives should be considered when:', options: ['Choosing among policy alternatives', 'Selecting a beneficiary only', 'Cancelling the policy', 'Ignoring underwriting results'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A major purpose of disclosure is to:', options: ['Ensure the client understands the product and its tradeoffs', 'Maximize agent commissions', 'Reduce the insurer’s duty', 'Avoid all documentation'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'One reason to review existing coverage before replacement is to:', options: ['Avoid accidental loss of valuable benefits', 'Increase premium complexity', 'Delay beneficiary naming', 'Create new risks'], answerIndex: 0 },
+      { chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A responsible producer will document the client’s:', options: ['Needs, choices, and the reasons for the recommendation', 'Personal opinions only', 'Private financial records only', 'Preferred color of policy materials'], answerIndex: 0 }
+    ];
+
+    const quiz = document.getElementById('quiz');
+    const scoreStat = document.getElementById('scoreStat');
+    const progressStat = document.getElementById('progressStat');
+    const resultBox = document.getElementById('resultBox');
+    const resetBtn = document.getElementById('resetBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let answered = [];
+    let score = 0;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function createQuiz() {
+      const grouped = {};
+      questions.forEach((q) => {
+        if (!grouped[q.chapter]) grouped[q.chapter] = [];
+        grouped[q.chapter].push(q);
+      });
+
+      quiz.innerHTML = '';
+      Object.entries(grouped).forEach(([chapter, chapterQuestions]) => {
+        const section = document.createElement('section');
+        section.className = 'chapter';
+        const title = document.createElement('h2');
+        title.textContent = chapter;
+        section.appendChild(title);
+
+        chapterQuestions.forEach((q, index) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const head = document.createElement('div');
+          head.className = 'card-head';
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = `Q${questions.indexOf(q) + 1}`;
+          const status = document.createElement('span');
+          status.id = `status-${questions.indexOf(q)}`;
+          status.textContent = 'Pending';
+          head.appendChild(badge);
+          head.appendChild(status);
+
+          const prompt = document.createElement('p');
+          prompt.className = 'qtext';
+          prompt.textContent = `${questions.indexOf(q) + 1}. ${q.prompt}`;
+
+          const options = document.createElement('div');
+          options.className = 'options';
+
+          q.options.forEach((optionText, optionIndex) => {
+            const button = document.createElement('button');
+            button.className = 'option';
+            button.type = 'button';
+            button.innerHTML = `<strong>${String.fromCharCode(65 + optionIndex)}.</strong> ${escapeHtml(optionText)}`;
+            button.addEventListener('click', () => handleAnswer(questions.indexOf(q), optionIndex, button));
+            options.appendChild(button);
+          });
+
+          const feedback = document.createElement('div');
+          feedback.className = 'feedback';
+          feedback.id = `feedback-${questions.indexOf(q)}`;
+
+          card.appendChild(head);
+          card.appendChild(prompt);
+          card.appendChild(options);
+          card.appendChild(feedback);
+          section.appendChild(card);
+        });
+
+        quiz.appendChild(section);
+      });
+    }
+
+    function handleAnswer(index, selectedIndex, button) {
+      if (answered.includes(index)) return;
+
+      const question = questions[index];
+      const buttons = button.parentElement.querySelectorAll('.option');
+      const feedback = document.getElementById(`feedback-${index}`);
+      const status = document.getElementById(`status-${index}`);
+
+      answered.push(index);
+      if (selectedIndex === question.answerIndex) {
+        score += 1;
+        feedback.className = 'feedback show correct';
+        feedback.textContent = 'Correct!';
+        status.textContent = 'Correct';
+        status.style.color = '#15803d';
+      } else {
+        feedback.className = 'feedback show wrong';
+        feedback.textContent = `Incorrect. The correct answer is ${String.fromCharCode(65 + question.answerIndex)}. ${question.options[question.answerIndex]}`;
+        status.textContent = 'Incorrect';
+        status.style.color = '#dc2626';
+      }
+
+      buttons.forEach((btn, btnIndex) => {
+        btn.disabled = true;
+        if (btnIndex === question.answerIndex) {
+          btn.classList.add('correct');
+        } else if (btnIndex === selectedIndex) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      scoreStat.textContent = `Score: ${score} / ${questions.length}`;
+      progressStat.textContent = `Answered: ${answered.length} / ${questions.length}`;
+    }
+
+    function submitQuiz() {
+      const percent = Math.round((score / questions.length) * 100);
+      resultBox.className = 'result show';
+      resultBox.innerHTML = `<strong>Finished!</strong><br/>You scored ${score} out of ${questions.length} (${percent}%).`;
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    resetBtn.addEventListener('click', () => {
+      answered = [];
+      score = 0;
+      createQuiz();
+      updateStats();
+      resultBox.className = 'result';
+      resultBox.innerHTML = '';
+    });
+
+    submitBtn.addEventListener('click', submitQuiz);
+
+    createQuiz();
+    updateStats();
+  </script>
+</body>
+</html>
