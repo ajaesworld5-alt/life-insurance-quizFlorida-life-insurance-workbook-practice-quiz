@@ -56,6 +56,11 @@
     .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
     .weak-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .chip { background: #eff6ff; color: var(--accent); padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .status { display: none; margin: 14px 0; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+    .status.show { display: block; }
+    .status.info { background: #eff6ff; color: var(--accent); border: 1px solid #bfdbfe; }
+    .status.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    button[disabled] { opacity: .65; cursor: default; }
     @media (max-width: 700px) { .hero h1 { font-size: 24px; } }
   </style>
 </head>
@@ -66,6 +71,8 @@
       <p>Sign in, pick a practice test, and build mastery by focusing on the questions you miss most.</p>
       <div id="authBox"></div>
     </div>
+
+    <div class="status" id="statusBanner"></div>
 
     <div class="toolbar">
       <label>
@@ -207,6 +214,7 @@
     const startBtn = document.getElementById('startBtn');
     const resetSessionBtn = document.getElementById('resetSessionBtn');
     const submitBtn = document.getElementById('submitBtn');
+    const statusBanner = document.getElementById('statusBanner');
 
     const activeUserKey = 'life-insurance-quiz-active-user-v1';
 
@@ -214,6 +222,34 @@
     let sessionQuestions = [];
     let answers = new Map();
     let score = 0;
+    let statusTimer = null;
+
+    function showStatus(message, type) {
+      clearTimeout(statusTimer);
+      statusBanner.className = `status show ${type || 'info'}`;
+      statusBanner.textContent = message;
+      statusBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      statusTimer = setTimeout(() => {
+        statusBanner.className = 'status';
+      }, 6000);
+    }
+
+    function withLoading(button, label, fn) {
+      return async (...args) => {
+        if (button.disabled) return;
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = label;
+        try {
+          await fn(...args);
+        } catch (error) {
+          showStatus(error.message || 'Something went wrong. Please try again.', 'error');
+        } finally {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      };
+    }
 
     function escapeHtml(value) {
       return String(value)
@@ -278,7 +314,7 @@
         }
       } catch (error) {
         currentUser = null;
-        localStorage.removeItem(activeUserKey);
+        showStatus('Could not reach the server to load your account. Check your connection and reload.', 'error');
       }
     }
 
@@ -362,13 +398,18 @@
             </div>
           </div>
         `;
-        document.getElementById('loginBtn').addEventListener('click', async () => {
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.addEventListener('click', withLoading(loginBtn, 'Signing in...', async () => {
           const input = document.getElementById('nameInput');
+          if (!input.value.trim()) {
+            showStatus('Enter your name to sign in.', 'error');
+            return;
+          }
           const user = await loginUser(input.value);
           if (user) {
             await render();
           }
-        });
+        }));
         return;
       }
 
@@ -516,7 +557,10 @@
     }
 
     async function submitSession() {
-      if (!sessionQuestions.length) return;
+      if (!sessionQuestions.length) {
+        showStatus('Start a practice session before submitting.', 'error');
+        return;
+      }
       const percent = Math.round((score / sessionQuestions.length) * 100);
       const focusText = currentUser ? 'Your next session will prioritize the topics you missed most.' : 'Sign in to make the next session adaptive.';
       resultBox.className = 'result show';
@@ -540,7 +584,7 @@
 
     async function startPractice() {
       if (!currentUser) {
-        renderAuth();
+        showStatus('Enter your name above and click Continue to sign in first.', 'error');
         return;
       }
       await saveCurrentUser();
@@ -552,6 +596,7 @@
       resultBox.className = 'result';
       resultBox.innerHTML = '';
       renderInsights();
+      quiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function render() {
@@ -563,7 +608,7 @@
       updateStats();
     }
 
-    startBtn.addEventListener('click', () => { startPractice(); });
+    startBtn.addEventListener('click', withLoading(startBtn, 'Loading...', startPractice));
     resetSessionBtn.addEventListener('click', () => {
       sessionQuestions = [];
       answers = new Map();
@@ -573,9 +618,9 @@
       resultBox.className = 'result';
       resultBox.innerHTML = '';
     });
-    submitBtn.addEventListener('click', submitSession);
+    submitBtn.addEventListener('click', withLoading(submitBtn, 'Submitting...', submitSession));
 
-    render();
+    render().catch((error) => showStatus(error.message || 'Failed to load your saved progress.', 'error'));
   </script>
 </body>
 </html>
