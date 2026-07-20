@@ -382,6 +382,8 @@
 
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== name; });
+      clearTimeout(statusTimer);
+      statusBanner.className = 'status';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
