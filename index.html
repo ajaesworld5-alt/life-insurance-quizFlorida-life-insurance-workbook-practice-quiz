@@ -459,11 +459,29 @@
       return attempted ? Math.round((correct / attempted) * 100) : null;
     }
 
+    function shuffle(array) {
+      const result = array.slice();
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function withShuffledOptions(question) {
+      const order = shuffle(question.options.map((_, i) => i));
+      return {
+        ...question,
+        options: order.map((originalIndex) => question.options[originalIndex]),
+        answerIndex: order.indexOf(question.answerIndex)
+      };
+    }
+
     async function buildTestQuestions(chapterValue, limit) {
       const data = await apiRequest('/api/adaptive', { id: currentUser.id, chapter: chapterValue, limit });
       return data.queue.map((question) => {
-        const full = questions.find((item) => item.id === question.id);
-        return full || question;
+        const full = questions.find((item) => item.id === question.id) || question;
+        return withShuffledOptions(full);
       });
     }
 
