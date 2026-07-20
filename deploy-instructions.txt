@@ -1,0 +1,7 @@
+1. Create a new Render web service.
+2. Connect this GitHub repository.
+3. Choose Node environment.
+4. Build command: npm install
+5. Start command: node server.js
+6. Deploy.
+7. Open the Render URL to use the quiz.

@@ -1,0 +1,9 @@
+Live deployment target: Render
+
+1. Create a new Render web service.
+2. Connect this repository.
+3. Use Node environment.
+4. Build command: npm install
+5. Start command: node server.js
+6. Deploy.
+7. Use the generated Render URL for the live app.

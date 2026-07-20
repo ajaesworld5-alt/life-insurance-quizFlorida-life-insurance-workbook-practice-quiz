@@ -208,7 +208,6 @@
     const resetSessionBtn = document.getElementById('resetSessionBtn');
     const submitBtn = document.getElementById('submitBtn');
 
-    const storageKey = 'life-insurance-quiz-users-v1';
     const activeUserKey = 'life-insurance-quiz-active-user-v1';
 
     let currentUser = null;
@@ -225,71 +224,85 @@
         .replace(/'/g, '&#39;');
     }
 
-    function getUsers() {
-      try {
-        return JSON.parse(localStorage.getItem(storageKey)) || [];
-      } catch (error) {
-        return [];
-      }
+    async function apiRequest(path, body) {
+      const options = { headers: { 'Content-Type': 'application/json' } };
+      if (body) options.body = JSON.stringify(body);
+      const response = await fetch(path, { method: 'POST', ...options });
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || 'Request failed');
+      return data;
     }
 
-    function saveUsers(users) {
-      localStorage.setItem(storageKey, JSON.stringify(users));
-    }
-
-    function loadCurrentUser() {
-      const users = getUsers();
-      const activeId = localStorage.getItem(activeUserKey);
-      currentUser = users.find((user) => user.id === activeId) || null;
-      if (!currentUser && users.length) {
-        currentUser = users[0];
-        localStorage.setItem(activeUserKey, currentUser.id);
-      }
-    }
-
-    function saveCurrentUser() {
-      if (!currentUser) return;
-      const users = getUsers();
-      const index = users.findIndex((user) => user.id === currentUser.id);
-      if (index >= 0) {
-        users[index] = currentUser;
-      } else {
-        users.push(currentUser);
-      }
-      saveUsers(users);
-      localStorage.setItem(activeUserKey, currentUser.id);
-    }
-
-    function createUser(name) {
-      const cleanName = name.trim();
+    async function createUser(name) {
+      const cleanName = String(name || '').trim();
       if (!cleanName) return null;
-      const id = `user-${cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`;
-      const user = {
-        id,
-        name: cleanName,
-        createdAt: new Date().toISOString(),
-        preferredChapter: 'all',
-        stats: {
-          totalSessions: 0,
-          totalCorrect: 0,
-          totalIncorrect: 0,
-          mastery: {}
+      const data = await apiRequest('/api/signup', { name: cleanName });
+      currentUser = data.user;
+      localStorage.setItem(activeUserKey, currentUser.id);
+      return currentUser;
+    }
+
+    async function loginUser(name) {
+      const cleanName = String(name || '').trim();
+      if (!cleanName) return null;
+      const activeId = localStorage.getItem(activeUserKey);
+      if (activeId) {
+        try {
+          const data = await apiRequest('/api/login', { id: activeId, name: cleanName });
+          currentUser = data.user;
+          return currentUser;
+        } catch (error) {
+          console.warn(error);
         }
-      };
-      currentUser = user;
-      saveCurrentUser();
-      return user;
+      }
+      const data = await apiRequest('/api/signup', { name: cleanName });
+      currentUser = data.user;
+      localStorage.setItem(activeUserKey, currentUser.id);
+      return currentUser;
+    }
+
+    async function loadCurrentUser() {
+      const activeId = localStorage.getItem(activeUserKey);
+      if (!activeId) {
+        currentUser = null;
+        return;
+      }
+      try {
+        const response = await fetch(`/api/state/${activeId}`);
+        const data = await response.json();
+        if (data.ok) {
+          currentUser = data.state;
+        } else {
+          currentUser = null;
+          localStorage.removeItem(activeUserKey);
+        }
+      } catch (error) {
+        currentUser = null;
+        localStorage.removeItem(activeUserKey);
+      }
+    }
+
+    async function saveCurrentUser() {
+      if (!currentUser) return;
+      localStorage.setItem(activeUserKey, currentUser.id);
+      currentUser.preferredChapter = chapterSelect.value;
+      currentUser = { ...currentUser, preferredChapter: chapterSelect.value };
+      try {
+        await apiRequest('/api/preferences', { id: currentUser.id, chapter: chapterSelect.value });
+      } catch (error) {
+        console.warn(error);
+      }
     }
 
     function getQuestionStat(questionId) {
       if (!currentUser) return { correct: 0, incorrect: 0 };
-      const data = currentUser.stats.mastery[questionId] || { correct: 0, incorrect: 0 };
+      const data = currentUser.stats?.mastery?.[questionId] || { correct: 0, incorrect: 0 };
       return data;
     }
 
-    function updateQuestionStats(questionId, isCorrect) {
+    async function updateQuestionStats(questionId, isCorrect) {
       if (!currentUser) return;
-      const stat = currentUser.stats.mastery[questionId] || { correct: 0, incorrect: 0 };
+      const stat = currentUser.stats?.mastery?.[questionId] || { correct: 0, incorrect: 0 };
       if (isCorrect) {
         stat.correct += 1;
         currentUser.stats.totalCorrect += 1;
@@ -299,7 +312,7 @@
       }
       currentUser.stats.mastery[questionId] = stat;
       currentUser.stats.totalSessions = Math.max(currentUser.stats.totalSessions, 1);
-      saveCurrentUser();
+      await saveCurrentUser();
     }
 
     function getWeaknessScore(question) {
@@ -310,14 +323,21 @@
       return stat.incorrect * 3 + (accuracy < 0.6 ? 2 : 0) + (stat.correct === 0 ? 2 : 0);
     }
 
-    function buildAdaptivePool(chapterValue) {
-      const filtered = chapterValue === 'all'
-        ? questions
-        : questions.filter((question) => question.chapter === chapterValue);
-      const ranked = filtered
-        .map((question) => ({ ...question, weakness: getWeaknessScore(question) }))
-        .sort((a, b) => b.weakness - a.weakness || a.id.localeCompare(b.id));
-      return ranked.slice(0, Math.min(12, ranked.length));
+    async function buildAdaptivePool(chapterValue) {
+      if (!currentUser) {
+        const filtered = chapterValue === 'all'
+          ? questions
+          : questions.filter((question) => question.chapter === chapterValue);
+        const ranked = filtered
+          .map((question) => ({ ...question, weakness: getWeaknessScore(question) }))
+          .sort((a, b) => b.weakness - a.weakness || a.id.localeCompare(b.id));
+        return ranked.slice(0, Math.min(12, ranked.length));
+      }
+      const data = await apiRequest('/api/adaptive', { id: currentUser.id, chapter: chapterValue, limit: 12 });
+      return data.queue.map((question) => {
+        const full = questions.find((item) => item.id === question.id);
+        return full ? { ...full, weakness: question.weakness } : { ...question, weakness: question.weakness };
+      });
     }
 
     function populateChapterSelect() {
@@ -342,11 +362,11 @@
             </div>
           </div>
         `;
-        document.getElementById('loginBtn').addEventListener('click', () => {
+        document.getElementById('loginBtn').addEventListener('click', async () => {
           const input = document.getElementById('nameInput');
-          const user = createUser(input.value);
+          const user = await loginUser(input.value);
           if (user) {
-            render();
+            await render();
           }
         });
         return;
@@ -356,7 +376,7 @@
         <div class="auth-card">
           <strong>Welcome, ${escapeHtml(currentUser.name)}.</strong>
           <div class="auth-row">
-            <span>Sessions completed: ${currentUser.stats.totalSessions}</span>
+            <span>Sessions completed: ${currentUser.stats?.totalSessions || 0}</span>
             <button class="btn secondary" id="logoutBtn">Sign out</button>
           </div>
         </div>
@@ -459,7 +479,7 @@
       progressStat.textContent = `Answered: ${answers.size} / ${total}`;
     }
 
-    function handleAnswer(question, selectedIndex, button) {
+    async function handleAnswer(question, selectedIndex, button) {
       if (answers.has(question.id)) return;
       const buttons = button.parentElement.querySelectorAll('.option');
       const feedback = document.getElementById(`feedback-${question.id}`);
@@ -490,12 +510,12 @@
       });
 
       if (currentUser) {
-        updateQuestionStats(question.id, isCorrect);
+        await updateQuestionStats(question.id, isCorrect);
       }
       updateStats();
     }
 
-    function submitSession() {
+    async function submitSession() {
       if (!sessionQuestions.length) return;
       const percent = Math.round((score / sessionQuestions.length) * 100);
       const focusText = currentUser ? 'Your next session will prioritize the topics you missed most.' : 'Sign in to make the next session adaptive.';
@@ -503,20 +523,28 @@
       resultBox.innerHTML = `<strong>Session complete.</strong><br/>You scored ${score} out of ${sessionQuestions.length} (${percent}%).<br/>${focusText}`;
       resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
       if (currentUser) {
+        await apiRequest('/api/session', {
+          id: currentUser.id,
+          chapter: chapterSelect.value,
+          questions: sessionQuestions.map((question) => ({ id: question.id, chapter: question.chapter })),
+          results: sessionQuestions.map((question) => ({
+            id: question.id,
+            correct: answers.get(question.id)?.isCorrect || false
+          }))
+        });
         currentUser.stats.totalSessions += 1;
-        saveCurrentUser();
+        await saveCurrentUser();
         renderInsights();
       }
     }
 
-    function startPractice() {
+    async function startPractice() {
       if (!currentUser) {
         renderAuth();
         return;
       }
-      currentUser.preferredChapter = chapterSelect.value;
-      saveCurrentUser();
-      sessionQuestions = buildAdaptivePool(chapterSelect.value);
+      await saveCurrentUser();
+      sessionQuestions = await buildAdaptivePool(chapterSelect.value);
       answers = new Map();
       score = 0;
       createQuizCards();
@@ -526,8 +554,8 @@
       renderInsights();
     }
 
-    function render() {
-      loadCurrentUser();
+    async function render() {
+      await loadCurrentUser();
       renderAuth();
       populateChapterSelect();
       renderInsights();
@@ -535,7 +563,7 @@
       updateStats();
     }
 
-    startBtn.addEventListener('click', startPractice);
+    startBtn.addEventListener('click', () => { startPractice(); });
     resetSessionBtn.addEventListener('click', () => {
       sessionQuestions = [];
       answers = new Map();
