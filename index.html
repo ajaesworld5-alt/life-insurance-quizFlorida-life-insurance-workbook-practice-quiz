@@ -3,102 +3,198 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Florida Life Insurance Workbook Practice Quiz</title>
+  <title>Florida Life Insurance License Exam Prep</title>
   <style>
     :root {
-      --bg: #f4f7fb;
+      --bg: #f1f5fb;
       --card: #ffffff;
       --text: #1e293b;
       --muted: #64748b;
       --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --navy: #0f172a;
       --success: #15803d;
       --danger: #dc2626;
       --border: #dbe3ef;
     }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
-    .hero { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; border-radius: 18px; padding: 24px; box-shadow: 0 10px 30px rgba(37,99,235,.18); }
-    .hero h1 { margin: 0 0 8px; font-size: 28px; }
-    .hero p { margin: 0; opacity: .96; }
-    .auth-card, .toolbar, .insights, .chapter, .card, .result { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 16px rgba(15,23,42,.04); }
-    .auth-card { padding: 16px; margin-top: 16px; }
-    .auth-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
-    input, select { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
-    .toolbar { padding: 16px; margin: 18px 0 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
-    .toolbar label { display: flex; flex-direction: column; font-weight: 700; gap: 6px; color: var(--muted); }
-    .insights { padding: 16px; margin-bottom: 16px; }
-    .insights h3 { margin: 0 0 8px; font-size: 17px; }
-    .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 22px; }
-    .stat { background: white; border: 1px solid var(--border); border-radius: 999px; padding: 10px 14px; font-weight: 700; box-shadow: 0 2px 10px rgba(15,23,42,.04); }
-    .chapter { padding: 18px; margin-bottom: 16px; }
-    .chapter h2 { margin: 0 0 10px; font-size: 18px; color: var(--accent); }
-    .card { padding: 14px 14px 12px; margin-bottom: 12px; background: #fcfdff; }
-    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .badge { background: #eff6ff; color: var(--accent); font-weight: 700; font-size: 12px; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
-    .qtext { font-weight: 700; margin: 0 0 10px; }
-    .options { display: grid; gap: 8px; }
-    button.option { width: 100%; text-align: left; border: 1px solid var(--border); background: white; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: 15px; color: var(--text); transition: transform .15s ease, border-color .15s ease; }
-    button.option:hover { transform: translateY(-1px); border-color: #93c5fd; }
-    button.option:disabled { cursor: default; opacity: 1; }
-    button.option.correct { border-color: var(--success); background: #ecfdf3; color: var(--success); font-weight: 700; }
-    button.option.wrong { border-color: var(--danger); background: #fef2f2; color: var(--danger); font-weight: 700; }
-    .feedback { margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 700; display: none; }
-    .feedback.show { display: block; }
-    .feedback.correct { background: #ecfdf3; color: var(--success); border: 1px solid #a7f3d0; }
-    .feedback.wrong { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
-    .actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .btn { padding: 12px 16px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 15px; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 16px 60px; }
+    button { font-family: inherit; }
+    .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 15px; }
     .btn.primary { background: var(--accent); color: white; }
+    .btn.primary:hover { background: var(--accent-dark); }
     .btn.secondary { background: white; color: var(--text); border: 1px solid var(--border); }
-    .result { display: none; margin-top: 16px; padding: 16px; border-radius: 14px; background: #eff6ff; border: 1px solid #bfdbfe; }
-    .result.show { display: block; }
-    .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
-    .weak-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .chip { background: #eff6ff; color: var(--accent); padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
-    .status { display: none; margin: 14px 0; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+    .btn.ghost { background: transparent; color: white; border: 1px solid rgba(255,255,255,.5); }
+    button[disabled] { opacity: .55; cursor: default; }
+
+    /* Top bar (shown once signed in) */
+    .topbar { background: var(--navy); color: white; }
+    .topbar-inner { max-width: 1000px; margin: 0 auto; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .brand { font-weight: 800; font-size: 17px; letter-spacing: .01em; }
+    .brand span { font-weight: 400; opacity: .8; }
+    .topbar-user { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+
+    .status { display: none; margin: 16px auto 0; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 14px; max-width: 1000px; }
     .status.show { display: block; }
     .status.info { background: #eff6ff; color: var(--accent); border: 1px solid #bfdbfe; }
     .status.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
-    button[disabled] { opacity: .65; cursor: default; }
-    @media (max-width: 700px) { .hero h1 { font-size: 24px; } }
+
+    .screen[hidden] { display: none; }
+
+    /* Login screen */
+    .login-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+    .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 20px 50px rgba(15,23,42,.12); padding: 36px 32px; max-width: 440px; width: 100%; text-align: center; }
+    .login-card .eyebrow { color: var(--accent); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .login-card h1 { margin: 0 0 12px; font-size: 24px; color: var(--navy); }
+    .login-card p { color: var(--muted); margin: 0 0 22px; }
+    .auth-row { display: flex; flex-direction: column; gap: 10px; }
+    input, select { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; width: 100%; }
+
+    /* Dashboard */
+    .dash-header { padding: 28px 0 6px; }
+    .dash-header h1 { margin: 0 0 4px; font-size: 24px; color: var(--navy); }
+    .dash-header p { margin: 0; color: var(--muted); }
+    .dash-stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+    .stat { background: white; border: 1px solid var(--border); border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 10px rgba(15,23,42,.04); }
+    .insights { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 16px rgba(15,23,42,.04); padding: 16px; margin: 0 0 22px; }
+    .insights h3 { margin: 0 0 8px; font-size: 16px; }
+    .insights p { margin: 0; color: var(--muted); font-size: 14px; }
+    .weak-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip { background: #eff6ff; color: var(--accent); padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+
+    .section-title { font-size: 17px; color: var(--navy); margin: 8px 0 14px; }
+    .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .test-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 4px 16px rgba(15,23,42,.04); display: flex; flex-direction: column; gap: 10px; text-align: left; }
+    .test-card.full-exam { border-color: #93c5fd; background: linear-gradient(180deg, #eff6ff, #ffffff); }
+    .test-card .test-kicker { font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+    .test-card h3 { margin: 0; font-size: 16px; color: var(--navy); }
+    .test-card .test-meta { color: var(--muted); font-size: 13px; }
+    .mini-progress { height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+    .mini-progress-fill { height: 100%; background: var(--success); }
+    .test-card .btn { margin-top: auto; }
+
+    /* Exam screen */
+    .exam-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 22px 0 10px; }
+    .exam-title { font-size: 19px; font-weight: 800; color: var(--navy); }
+    .exam-progress-label { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .progress-bar { height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin-bottom: 14px; }
+    .progress-bar-fill { height: 100%; background: var(--accent); transition: width .2s ease; }
+    .qnav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .qnav button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 700; font-size: 12px; cursor: pointer; color: var(--muted); }
+    .qnav button.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,.15) inset; }
+    .qnav button.correct { background: #ecfdf3; border-color: #a7f3d0; color: var(--success); }
+    .qnav button.wrong { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+
+    .exam-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 16px rgba(15,23,42,.04); padding: 22px; }
+    .exam-card .badge { background: #eff6ff; color: var(--accent); font-weight: 700; font-size: 12px; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
+    .qtext { font-weight: 700; font-size: 17px; margin: 14px 0 16px; }
+    .options { display: grid; gap: 10px; }
+    button.option { width: 100%; text-align: left; border: 1px solid var(--border); background: white; border-radius: 10px; padding: 12px 14px; cursor: pointer; font-size: 15px; color: var(--text); transition: transform .15s ease, border-color .15s ease; }
+    button.option:hover:not(:disabled) { transform: translateY(-1px); border-color: #93c5fd; }
+    button.option:disabled { cursor: default; }
+    button.option.correct { border-color: var(--success); background: #ecfdf3; color: var(--success); font-weight: 700; }
+    button.option.wrong { border-color: var(--danger); background: #fef2f2; color: var(--danger); font-weight: 700; }
+    .feedback { margin-top: 14px; padding: 10px 12px; border-radius: 10px; font-weight: 700; display: none; font-size: 14px; }
+    .feedback.show { display: block; }
+    .feedback.correct { background: #ecfdf3; color: var(--success); border: 1px solid #a7f3d0; }
+    .feedback.wrong { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .exam-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .exam-actions .spacer { flex: 1; }
+
+    /* Results */
+    .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.08); padding: 28px; text-align: center; margin-top: 22px; }
+    .result-card .score { font-size: 42px; font-weight: 800; color: var(--navy); margin: 6px 0; }
+    .pass-badge { display: inline-block; padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; }
+    .pass-badge.pass { background: #ecfdf3; color: var(--success); }
+    .pass-badge.fail { background: #fef2f2; color: var(--danger); }
+    .review-list { margin-top: 20px; max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .review-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; text-align: left; }
+    .review-item .rtitle { font-weight: 700; margin-bottom: 6px; }
+    .review-item .rmeta { font-size: 13px; color: var(--muted); }
+    .review-item .rcorrect { color: var(--success); font-weight: 700; }
+    .review-item .rwrong { color: var(--danger); font-weight: 700; }
+
+    .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 30px; }
+
+    @media (max-width: 700px) {
+      .login-card { padding: 28px 22px; }
+      .exam-card { padding: 16px; }
+      .result-card { padding: 20px; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>Florida Life Insurance Workbook Practice Quiz</h1>
-      <p>Sign in, pick a practice test, and build mastery by focusing on the questions you miss most.</p>
-      <div id="authBox"></div>
+  <header class="topbar" id="topbar" hidden>
+    <div class="topbar-inner">
+      <div class="brand">FL Life Insurance <span>Exam Prep</span></div>
+      <div class="topbar-user">
+        <span id="topbarUser"></span>
+        <button class="btn ghost" id="signOutBtn">Sign out</button>
+      </div>
     </div>
+  </header>
 
-    <div class="status" id="statusBanner"></div>
+  <div class="status" id="statusBanner"></div>
 
-    <div class="toolbar">
-      <label>
-        Practice test
-        <select id="chapterSelect"></select>
-      </label>
-      <button class="btn primary" id="startBtn">Start adaptive practice</button>
-      <button class="btn secondary" id="resetSessionBtn">Clear current session</button>
-    </div>
+  <main class="wrap">
+    <section id="loginScreen" class="screen">
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="eyebrow">Florida 2-15 License Prep</div>
+          <h1>Life Insurance Exam Prep</h1>
+          <p>Sign in to track your progress. Each chapter is a short 10-question test, plus a full 100-question practice exam when you're ready.</p>
+          <div class="auth-row">
+            <input id="nameInput" type="text" placeholder="Enter your name" autocomplete="name" />
+            <button class="btn primary" id="loginBtn">Sign in</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <div class="insights" id="insights"></div>
-    <div class="stats">
-      <div class="stat" id="scoreStat">Score: 0 / 0</div>
-      <div class="stat" id="progressStat">Answered: 0 / 0</div>
-    </div>
+    <section id="dashboardScreen" class="screen" hidden>
+      <div class="dash-header">
+        <h1>Welcome back, <span id="dashName"></span></h1>
+        <p>Pick a chapter test to drill a topic, or take the full exam to simulate test day.</p>
+        <div class="dash-stats" id="dashStats"></div>
+      </div>
+      <div class="insights" id="insights"></div>
+      <h2 class="section-title">Chapter tests · 10 questions each</h2>
+      <div class="test-grid" id="chapterGrid"></div>
+      <h2 class="section-title">Full practice exam</h2>
+      <div class="test-grid" id="examGrid"></div>
+    </section>
 
-    <div id="quiz"></div>
+    <section id="examScreen" class="screen" hidden>
+      <div class="exam-header">
+        <div>
+          <div class="exam-title" id="examTitle"></div>
+          <div class="exam-progress-label" id="examProgressLabel"></div>
+        </div>
+        <button class="btn secondary" id="exitExamBtn">Exit test</button>
+      </div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="qnav" id="qNav"></div>
+      <div class="exam-card" id="examCard"></div>
+      <div class="exam-actions">
+        <button class="btn secondary" id="backQBtn">Back</button>
+        <div class="spacer"></div>
+        <button class="btn primary" id="nextQBtn">Next</button>
+      </div>
+    </section>
 
-    <div class="actions">
-      <button class="btn primary" id="submitBtn">Submit session</button>
-    </div>
+    <section id="resultsScreen" class="screen" hidden>
+      <div class="result-card" id="resultCard"></div>
+      <div class="review-list" id="reviewList"></div>
+      <div class="exam-actions">
+        <button class="btn secondary" id="backToDashBtn">Back to dashboard</button>
+        <div class="spacer"></div>
+        <button class="btn primary" id="retakeBtn">Retake this test</button>
+      </div>
+    </section>
 
-    <div class="result" id="resultBox"></div>
-
-    <div class="footer">Built as a lightweight web quiz so it can be hosted on GitHub Pages, Hostinger, or any simple static host.</div>
-  </div>
+    <div class="footer">Practice questions only — not affiliated with the State of Florida. Most Florida life insurance license exams require a 70% passing score.</div>
+  </main>
 
   <script>
     const questions = [
@@ -204,24 +300,50 @@
       { id: 'q100', chapter: 'Chapter 10: Policy Replacement, Suitability, and Consumer Protection', prompt: 'A responsible producer will document the client’s:', options: ['Needs, choices, and the reasons for the recommendation', 'Personal opinions only', 'Private financial records only', 'Preferred color of policy materials'], answerIndex: 0 }
     ];
 
-    const chapterSelect = document.getElementById('chapterSelect');
-    const authBox = document.getElementById('authBox');
-    const quiz = document.getElementById('quiz');
-    const insights = document.getElementById('insights');
-    const scoreStat = document.getElementById('scoreStat');
-    const progressStat = document.getElementById('progressStat');
-    const resultBox = document.getElementById('resultBox');
-    const startBtn = document.getElementById('startBtn');
-    const resetSessionBtn = document.getElementById('resetSessionBtn');
-    const submitBtn = document.getElementById('submitBtn');
+    const chapters = [...new Set(questions.map((q) => q.chapter))];
+    const PASS_PERCENT = 70;
+
+    // DOM refs
+    const topbar = document.getElementById('topbar');
+    const topbarUser = document.getElementById('topbarUser');
+    const signOutBtn = document.getElementById('signOutBtn');
     const statusBanner = document.getElementById('statusBanner');
+
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const examScreen = document.getElementById('examScreen');
+    const resultsScreen = document.getElementById('resultsScreen');
+    const screens = { login: loginScreen, dashboard: dashboardScreen, exam: examScreen, results: resultsScreen };
+
+    const nameInput = document.getElementById('nameInput');
+    const loginBtn = document.getElementById('loginBtn');
+
+    const dashName = document.getElementById('dashName');
+    const dashStats = document.getElementById('dashStats');
+    const insights = document.getElementById('insights');
+    const chapterGrid = document.getElementById('chapterGrid');
+    const examGrid = document.getElementById('examGrid');
+
+    const examTitle = document.getElementById('examTitle');
+    const examProgressLabel = document.getElementById('examProgressLabel');
+    const progressFill = document.getElementById('progressFill');
+    const qNav = document.getElementById('qNav');
+    const examCard = document.getElementById('examCard');
+    const backQBtn = document.getElementById('backQBtn');
+    const nextQBtn = document.getElementById('nextQBtn');
+    const exitExamBtn = document.getElementById('exitExamBtn');
+
+    const resultCard = document.getElementById('resultCard');
+    const reviewList = document.getElementById('reviewList');
+    const backToDashBtn = document.getElementById('backToDashBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
 
     const activeUserKey = 'life-insurance-quiz-active-user-v1';
 
     let currentUser = null;
-    let sessionQuestions = [];
+    let currentTest = null; // { chapterValue, title, testQuestions }
+    let currentIndex = 0;
     let answers = new Map();
-    let score = 0;
     let statusTimer = null;
 
     function showStatus(message, type) {
@@ -229,9 +351,7 @@
       statusBanner.className = `status show ${type || 'info'}`;
       statusBanner.textContent = message;
       statusBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      statusTimer = setTimeout(() => {
-        statusBanner.className = 'status';
-      }, 6000);
+      statusTimer = setTimeout(() => { statusBanner.className = 'status'; }, 6000);
     }
 
     function withLoading(button, label, fn) {
@@ -260,6 +380,11 @@
         .replace(/'/g, '&#39;');
     }
 
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== name; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     async function apiRequest(path, body) {
       const options = { headers: { 'Content-Type': 'application/json' } };
       if (body) options.body = JSON.stringify(body);
@@ -267,15 +392,6 @@
       const data = await response.json();
       if (!data.ok) throw new Error(data.error || 'Request failed');
       return data;
-    }
-
-    async function createUser(name) {
-      const cleanName = String(name || '').trim();
-      if (!cleanName) return null;
-      const data = await apiRequest('/api/signup', { name: cleanName });
-      currentUser = data.user;
-      localStorage.setItem(activeUserKey, currentUser.id);
-      return currentUser;
     }
 
     async function loginUser(name) {
@@ -318,37 +434,9 @@
       }
     }
 
-    async function saveCurrentUser() {
-      if (!currentUser) return;
-      localStorage.setItem(activeUserKey, currentUser.id);
-      currentUser.preferredChapter = chapterSelect.value;
-      currentUser = { ...currentUser, preferredChapter: chapterSelect.value };
-      try {
-        await apiRequest('/api/preferences', { id: currentUser.id, chapter: chapterSelect.value });
-      } catch (error) {
-        console.warn(error);
-      }
-    }
-
     function getQuestionStat(questionId) {
       if (!currentUser) return { correct: 0, incorrect: 0 };
-      const data = currentUser.stats?.mastery?.[questionId] || { correct: 0, incorrect: 0 };
-      return data;
-    }
-
-    async function updateQuestionStats(questionId, isCorrect) {
-      if (!currentUser) return;
-      const stat = currentUser.stats?.mastery?.[questionId] || { correct: 0, incorrect: 0 };
-      if (isCorrect) {
-        stat.correct += 1;
-        currentUser.stats.totalCorrect += 1;
-      } else {
-        stat.incorrect += 1;
-        currentUser.stats.totalIncorrect += 1;
-      }
-      currentUser.stats.mastery[questionId] = stat;
-      currentUser.stats.totalSessions = Math.max(currentUser.stats.totalSessions, 1);
-      await saveCurrentUser();
+      return currentUser.stats?.mastery?.[questionId] || { correct: 0, incorrect: 0 };
     }
 
     function getWeaknessScore(question) {
@@ -359,268 +447,270 @@
       return stat.incorrect * 3 + (accuracy < 0.6 ? 2 : 0) + (stat.correct === 0 ? 2 : 0);
     }
 
-    async function buildAdaptivePool(chapterValue) {
-      if (!currentUser) {
-        const filtered = chapterValue === 'all'
-          ? questions
-          : questions.filter((question) => question.chapter === chapterValue);
-        const ranked = filtered
-          .map((question) => ({ ...question, weakness: getWeaknessScore(question) }))
-          .sort((a, b) => b.weakness - a.weakness || a.id.localeCompare(b.id));
-        return ranked.slice(0, Math.min(12, ranked.length));
-      }
-      const data = await apiRequest('/api/adaptive', { id: currentUser.id, chapter: chapterValue, limit: 12 });
+    function getChapterMastery(chapter) {
+      const chapterQuestions = questions.filter((q) => q.chapter === chapter);
+      let correct = 0;
+      let attempted = 0;
+      chapterQuestions.forEach((q) => {
+        const stat = getQuestionStat(q.id);
+        correct += stat.correct;
+        attempted += stat.correct + stat.incorrect;
+      });
+      return attempted ? Math.round((correct / attempted) * 100) : null;
+    }
+
+    async function buildTestQuestions(chapterValue, limit) {
+      const data = await apiRequest('/api/adaptive', { id: currentUser.id, chapter: chapterValue, limit });
       return data.queue.map((question) => {
         const full = questions.find((item) => item.id === question.id);
-        return full ? { ...full, weakness: question.weakness } : { ...question, weakness: question.weakness };
+        return full || question;
       });
     }
 
-    function populateChapterSelect() {
-      const chapters = ['all', ...new Set(questions.map((question) => question.chapter))];
-      chapterSelect.innerHTML = chapters.map((chapter) => {
-        const label = chapter === 'all' ? 'All chapters' : chapter;
-        return `<option value="${chapter}">${escapeHtml(label)}</option>`;
-      }).join('');
-      if (currentUser && currentUser.preferredChapter) {
-        chapterSelect.value = currentUser.preferredChapter;
-      }
-    }
-
-    function renderAuth() {
-      if (!currentUser) {
-        authBox.innerHTML = `
-          <div class="auth-card">
-            <strong>Sign in to save your progress</strong>
-            <div class="auth-row">
-              <input id="nameInput" type="text" placeholder="Enter your name" />
-              <button class="btn primary" id="loginBtn">Continue</button>
-            </div>
-          </div>
-        `;
-        const loginBtn = document.getElementById('loginBtn');
-        loginBtn.addEventListener('click', withLoading(loginBtn, 'Signing in...', async () => {
-          const input = document.getElementById('nameInput');
-          if (!input.value.trim()) {
-            showStatus('Enter your name to sign in.', 'error');
-            return;
-          }
-          const user = await loginUser(input.value);
-          if (user) {
-            await render();
-          }
-        }));
+    // ---------- Login ----------
+    loginBtn.addEventListener('click', withLoading(loginBtn, 'Signing in...', async () => {
+      if (!nameInput.value.trim()) {
+        showStatus('Enter your name to sign in.', 'error');
         return;
       }
+      const user = await loginUser(nameInput.value);
+      if (user) await renderDashboard();
+    }));
 
-      authBox.innerHTML = `
-        <div class="auth-card">
-          <strong>Welcome, ${escapeHtml(currentUser.name)}.</strong>
-          <div class="auth-row">
-            <span>Sessions completed: ${currentUser.stats?.totalSessions || 0}</span>
-            <button class="btn secondary" id="logoutBtn">Sign out</button>
-          </div>
-        </div>
+    signOutBtn.addEventListener('click', () => {
+      localStorage.removeItem(activeUserKey);
+      currentUser = null;
+      currentTest = null;
+      topbar.hidden = true;
+      nameInput.value = '';
+      showScreen('login');
+    });
+
+    // ---------- Dashboard ----------
+    async function renderDashboard() {
+      topbar.hidden = false;
+      topbarUser.textContent = currentUser.name;
+      dashName.textContent = currentUser.name;
+
+      const totalAttempted = (currentUser.stats?.totalCorrect || 0) + (currentUser.stats?.totalIncorrect || 0);
+      const overallAccuracy = totalAttempted ? Math.round((currentUser.stats.totalCorrect / totalAttempted) * 100) : null;
+      dashStats.innerHTML = `
+        <div class="stat">Sessions completed: ${currentUser.stats?.totalSessions || 0}</div>
+        <div class="stat">Overall accuracy: ${overallAccuracy === null ? 'No attempts yet' : overallAccuracy + '%'}</div>
       `;
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem(activeUserKey);
-        currentUser = null;
-        render();
-      });
-    }
-
-    function renderInsights() {
-      if (!currentUser) {
-        insights.innerHTML = '<strong>Sign in to start building a personalized adaptive practice set.</strong>';
-        return;
-      }
 
       const weakQuestions = questions
         .map((question) => ({ ...question, weakness: getWeaknessScore(question) }))
+        .filter((q) => q.weakness > 3)
         .sort((a, b) => b.weakness - a.weakness)
         .slice(0, 5);
-
-      const weakList = weakQuestions.map((question) => `<span class="chip">${escapeHtml(question.chapter)} · ${escapeHtml(question.id)}</span>`).join('');
-
+      const weakList = weakQuestions.map((q) => `<span class="chip">${escapeHtml(q.chapter)} · ${escapeHtml(q.id.toUpperCase())}</span>`).join('');
       insights.innerHTML = `
         <h3>Your adaptive focus</h3>
-        <p>Questions you miss most will appear first in future practice sessions.</p>
-        <div class="weak-list">${weakList || '<span class="chip">No weak areas yet — start a session to build your profile.</span>'}</div>
+        <p>Questions you miss most are automatically prioritized first in that chapter's next test.</p>
+        <div class="weak-list">${weakList || '<span class="chip">No weak areas yet — take a test to build your profile.</span>'}</div>
       `;
+
+      chapterGrid.innerHTML = chapters.map((chapter, index) => {
+        const [kicker, ...rest] = chapter.split(':');
+        const title = rest.join(':').trim();
+        const mastery = getChapterMastery(chapter);
+        const pct = mastery === null ? 0 : mastery;
+        return `
+          <div class="test-card" data-chapter="${escapeHtml(chapter)}">
+            <div class="test-kicker">${escapeHtml(kicker)}</div>
+            <h3>${escapeHtml(title)}</h3>
+            <div class="test-meta">10 questions${mastery === null ? ' · Not started' : ' · ' + mastery + '% mastery'}</div>
+            <div class="mini-progress"><div class="mini-progress-fill" style="width:${pct}%"></div></div>
+            <button class="btn primary start-chapter-btn" type="button">${mastery === null ? 'Start test' : 'Retake test'}</button>
+          </div>
+        `;
+      }).join('');
+
+      examGrid.innerHTML = `
+        <div class="test-card full-exam" data-chapter="all">
+          <div class="test-kicker">Simulates test day</div>
+          <h3>Full Practice Exam</h3>
+          <div class="test-meta">100 questions covering every chapter</div>
+          <button class="btn primary start-chapter-btn" type="button">Start full exam</button>
+        </div>
+      `;
+
+      document.querySelectorAll('.start-chapter-btn').forEach((btn) => {
+        const card = btn.closest('.test-card');
+        btn.addEventListener('click', withLoading(btn, 'Loading...', async () => {
+          await startTest(card.dataset.chapter);
+        }));
+      });
+
+      showScreen('dashboard');
     }
 
-    function createQuizCards() {
-      quiz.innerHTML = '';
-      if (!sessionQuestions.length) {
-        quiz.innerHTML = '<p>Start a practice session to begin adaptive review.</p>';
+    // ---------- Exam ----------
+    async function startTest(chapterValue) {
+      const limit = chapterValue === 'all' ? 100 : 10;
+      const testQuestions = await buildTestQuestions(chapterValue, limit);
+      if (!testQuestions.length) {
+        showStatus('Could not load questions for this test. Please try again.', 'error');
         return;
       }
-
-      const grouped = {};
-      sessionQuestions.forEach((question) => {
-        if (!grouped[question.chapter]) grouped[question.chapter] = [];
-        grouped[question.chapter].push(question);
-      });
-
-      Object.entries(grouped).forEach(([chapter, chapterQuestions]) => {
-        const section = document.createElement('section');
-        section.className = 'chapter';
-        const title = document.createElement('h2');
-        title.textContent = chapter;
-        section.appendChild(title);
-
-        chapterQuestions.forEach((question) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          const head = document.createElement('div');
-          head.className = 'card-head';
-          const badge = document.createElement('span');
-          badge.className = 'badge';
-          badge.textContent = question.id.toUpperCase();
-          const status = document.createElement('span');
-          status.id = `status-${question.id}`;
-          status.textContent = 'Pending';
-          head.appendChild(badge);
-          head.appendChild(status);
-
-          const prompt = document.createElement('p');
-          prompt.className = 'qtext';
-          prompt.textContent = `${question.id.replace('q', '')}. ${question.prompt}`;
-
-          const options = document.createElement('div');
-          options.className = 'options';
-
-          question.options.forEach((optionText, optionIndex) => {
-            const button = document.createElement('button');
-            button.className = 'option';
-            button.type = 'button';
-            button.innerHTML = `<strong>${String.fromCharCode(65 + optionIndex)}.</strong> ${escapeHtml(optionText)}`;
-            button.addEventListener('click', () => handleAnswer(question, optionIndex, button));
-            options.appendChild(button);
-          });
-
-          const feedback = document.createElement('div');
-          feedback.className = 'feedback';
-          feedback.id = `feedback-${question.id}`;
-
-          card.appendChild(head);
-          card.appendChild(prompt);
-          card.appendChild(options);
-          card.appendChild(feedback);
-          section.appendChild(card);
-        });
-
-        quiz.appendChild(section);
-      });
+      currentTest = {
+        chapterValue,
+        title: chapterValue === 'all' ? 'Full Practice Exam' : chapterValue,
+        testQuestions
+      };
+      currentIndex = 0;
+      answers = new Map();
+      renderExam();
+      showScreen('exam');
     }
 
-    function updateStats() {
-      const total = sessionQuestions.length || 0;
-      scoreStat.textContent = `Score: ${score} / ${total}`;
-      progressStat.textContent = `Answered: ${answers.size} / ${total}`;
-    }
+    function renderExam() {
+      const total = currentTest.testQuestions.length;
+      const question = currentTest.testQuestions[currentIndex];
+      const answered = answers.size;
 
-    async function handleAnswer(question, selectedIndex, button) {
-      if (answers.has(question.id)) return;
-      const buttons = button.parentElement.querySelectorAll('.option');
-      const feedback = document.getElementById(`feedback-${question.id}`);
-      const status = document.getElementById(`status-${question.id}`);
-      const isCorrect = selectedIndex === question.answerIndex;
+      examTitle.textContent = currentTest.title;
+      examProgressLabel.textContent = `Question ${currentIndex + 1} of ${total} · Answered ${answered} of ${total}`;
+      progressFill.style.width = `${((currentIndex + 1) / total) * 100}%`;
 
-      answers.set(question.id, { selectedIndex, isCorrect });
-      if (isCorrect) {
-        score += 1;
-        feedback.className = 'feedback show correct';
-        feedback.textContent = 'Correct!';
-        status.textContent = 'Correct';
-        status.style.color = '#15803d';
-      } else {
-        feedback.className = 'feedback show wrong';
-        feedback.textContent = `Incorrect. The correct answer is ${String.fromCharCode(65 + question.answerIndex)}. ${question.options[question.answerIndex]}`;
-        status.textContent = 'Incorrect';
-        status.style.color = '#dc2626';
-      }
+      qNav.innerHTML = currentTest.testQuestions.map((q, i) => {
+        const record = answers.get(q.id);
+        let cls = '';
+        if (i === currentIndex) cls = 'current';
+        else if (record) cls = record.isCorrect ? 'correct' : 'wrong';
+        return `<button type="button" data-index="${i}" class="${cls}">${i + 1}</button>`;
+      }).join('');
+      qNav.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => { currentIndex = Number(btn.dataset.index); renderExam(); });
+      });
 
-      buttons.forEach((btn, btnIndex) => {
-        btn.disabled = true;
-        if (btnIndex === question.answerIndex) {
-          btn.classList.add('correct');
-        } else if (btnIndex === selectedIndex) {
-          btn.classList.add('wrong');
+      const existing = answers.get(question.id);
+      const optionsHtml = question.options.map((optionText, optionIndex) => {
+        let cls = 'option';
+        if (existing) {
+          if (optionIndex === question.answerIndex) cls += ' correct';
+          else if (optionIndex === existing.selectedIndex) cls += ' wrong';
         }
+        return `<button type="button" class="${cls}" data-option="${optionIndex}" ${existing ? 'disabled' : ''}><strong>${String.fromCharCode(65 + optionIndex)}.</strong> ${escapeHtml(optionText)}</button>`;
+      }).join('');
+
+      let feedbackHtml = '';
+      if (existing) {
+        feedbackHtml = existing.isCorrect
+          ? `<div class="feedback show correct">Correct!</div>`
+          : `<div class="feedback show wrong">Incorrect. The correct answer is ${String.fromCharCode(65 + question.answerIndex)}. ${escapeHtml(question.options[question.answerIndex])}</div>`;
+      }
+
+      examCard.innerHTML = `
+        <span class="badge">${escapeHtml(question.chapter)}</span>
+        <p class="qtext">${currentIndex + 1}. ${escapeHtml(question.prompt)}</p>
+        <div class="options">${optionsHtml}</div>
+        ${feedbackHtml}
+      `;
+
+      examCard.querySelectorAll('.option').forEach((btn) => {
+        btn.addEventListener('click', () => handleAnswer(question, Number(btn.dataset.option)));
       });
 
-      if (currentUser) {
-        await updateQuestionStats(question.id, isCorrect);
-      }
-      updateStats();
+      backQBtn.disabled = currentIndex === 0;
+      nextQBtn.textContent = currentIndex === total - 1 ? 'Finish test' : 'Next';
     }
 
-    async function submitSession() {
-      if (!sessionQuestions.length) {
-        showStatus('Start a practice session before submitting.', 'error');
-        return;
-      }
-      const percent = Math.round((score / sessionQuestions.length) * 100);
-      const focusText = currentUser ? 'Your next session will prioritize the topics you missed most.' : 'Sign in to make the next session adaptive.';
-      resultBox.className = 'result show';
-      resultBox.innerHTML = `<strong>Session complete.</strong><br/>You scored ${score} out of ${sessionQuestions.length} (${percent}%).<br/>${focusText}`;
-      resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (currentUser) {
-        await apiRequest('/api/session', {
-          id: currentUser.id,
-          chapter: chapterSelect.value,
-          questions: sessionQuestions.map((question) => ({ id: question.id, chapter: question.chapter })),
-          results: sessionQuestions.map((question) => ({
-            id: question.id,
-            correct: answers.get(question.id)?.isCorrect || false
-          }))
-        });
-        currentUser.stats.totalSessions += 1;
-        await saveCurrentUser();
-        renderInsights();
-      }
+    function handleAnswer(question, selectedIndex) {
+      if (answers.has(question.id)) return;
+      const isCorrect = selectedIndex === question.answerIndex;
+      answers.set(question.id, { selectedIndex, isCorrect });
+      renderExam();
     }
 
-    async function startPractice() {
-      if (!currentUser) {
-        showStatus('Enter your name above and click Continue to sign in first.', 'error');
-        return;
-      }
-      await saveCurrentUser();
-      sessionQuestions = await buildAdaptivePool(chapterSelect.value);
-      answers = new Map();
-      score = 0;
-      createQuizCards();
-      updateStats();
-      resultBox.className = 'result';
-      resultBox.innerHTML = '';
-      renderInsights();
-      quiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    async function render() {
-      await loadCurrentUser();
-      renderAuth();
-      populateChapterSelect();
-      renderInsights();
-      createQuizCards();
-      updateStats();
-    }
-
-    startBtn.addEventListener('click', withLoading(startBtn, 'Loading...', startPractice));
-    resetSessionBtn.addEventListener('click', () => {
-      sessionQuestions = [];
-      answers = new Map();
-      score = 0;
-      createQuizCards();
-      updateStats();
-      resultBox.className = 'result';
-      resultBox.innerHTML = '';
+    backQBtn.addEventListener('click', () => {
+      if (currentIndex === 0) return;
+      currentIndex -= 1;
+      renderExam();
     });
-    submitBtn.addEventListener('click', withLoading(submitBtn, 'Submitting...', submitSession));
 
-    render().catch((error) => showStatus(error.message || 'Failed to load your saved progress.', 'error'));
+    nextQBtn.addEventListener('click', withLoading(nextQBtn, 'Please wait...', async () => {
+      const total = currentTest.testQuestions.length;
+      if (currentIndex < total - 1) {
+        currentIndex += 1;
+        renderExam();
+        return;
+      }
+      await finishTest();
+    }));
+
+    exitExamBtn.addEventListener('click', () => {
+      const confirmed = window.confirm('Exit this test? Unanswered questions will not be saved.');
+      if (!confirmed) return;
+      currentTest = null;
+      renderDashboard();
+    });
+
+    // ---------- Results ----------
+    async function finishTest() {
+      const total = currentTest.testQuestions.length;
+      let score = 0;
+      currentTest.testQuestions.forEach((q) => {
+        if (answers.get(q.id)?.isCorrect) score += 1;
+      });
+      const percent = Math.round((score / total) * 100);
+      const passed = percent >= PASS_PERCENT;
+
+      await apiRequest('/api/session', {
+        id: currentUser.id,
+        chapter: currentTest.chapterValue,
+        questions: currentTest.testQuestions.map((q) => ({ id: q.id, chapter: q.chapter })),
+        results: currentTest.testQuestions.map((q) => ({ id: q.id, correct: answers.get(q.id)?.isCorrect || false }))
+      });
+      await loadCurrentUser();
+
+      resultCard.innerHTML = `
+        <div class="pass-badge ${passed ? 'pass' : 'fail'}">${passed ? 'Passing' : 'Below passing'}</div>
+        <div>${escapeHtml(currentTest.title)}</div>
+        <div class="score">${score} / ${total}</div>
+        <div>${percent}% correct · Passing benchmark is ${PASS_PERCENT}%</div>
+      `;
+
+      const missed = currentTest.testQuestions.filter((q) => !answers.get(q.id)?.isCorrect);
+      reviewList.innerHTML = missed.length
+        ? missed.map((q) => {
+          const record = answers.get(q.id);
+          const yourAnswer = record ? q.options[record.selectedIndex] : 'Not answered';
+          return `
+            <div class="review-item">
+              <div class="rtitle">${escapeHtml(q.prompt)}</div>
+              <div class="rmeta">Your answer: <span class="rwrong">${escapeHtml(yourAnswer)}</span></div>
+              <div class="rmeta">Correct answer: <span class="rcorrect">${escapeHtml(q.options[q.answerIndex])}</span></div>
+            </div>
+          `;
+        }).join('')
+        : '<div class="review-item">Perfect score — no questions to review.</div>';
+
+      showScreen('results');
+    }
+
+    backToDashBtn.addEventListener('click', withLoading(backToDashBtn, 'Loading...', async () => {
+      currentTest = null;
+      await renderDashboard();
+    }));
+
+    retakeBtn.addEventListener('click', withLoading(retakeBtn, 'Loading...', async () => {
+      const chapterValue = currentTest.chapterValue;
+      await startTest(chapterValue);
+    }));
+
+    // ---------- Boot ----------
+    async function boot() {
+      await loadCurrentUser();
+      if (currentUser) {
+        await renderDashboard();
+      } else {
+        showScreen('login');
+      }
+    }
+
+    boot().catch((error) => showStatus(error.message || 'Failed to load the app.', 'error'));
   </script>
 </body>
 </html>
